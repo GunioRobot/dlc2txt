@@ -1,0 +1,20 @@
+# Created @ 01.04.2009 by TheFox@fox21.at
+
+Requirements
+	- Webserver
+	- Perlmodule:
+		Cwd
+		CGI
+		LWP::Simple
+		LWP::UserAgent
+		HTTP::Request
+		HTTP::Request::Common
+		HTTP::Response
+		MIME::Base64
+		Crypt::Rijndael
+		File::Basename
+
+Description
+	Decrypt .dlc files.
+
+# EOF
