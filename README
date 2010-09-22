@@ -1,5 +1,8 @@
 # Created @ 01.04.2009 by TheFox@fox21.at
 
+Installation
+	You need to set up $KEYA, $KEYB and $PROGNAME.
+
 Requirements
 	- Webserver
 	- Perlmodule:
