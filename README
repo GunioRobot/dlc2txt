@@ -1,5 +1,8 @@
 # Created @ 01.04.2009 by TheFox@fox21.at
 
+Description
+	Decrypt .dlc files.
+
 Installation
 	You need to set up $KEYA, $KEYB and $PROGNAME.
 
@@ -8,6 +11,7 @@ Requirements
 	- Perlmodule:
 		Cwd
 		CGI
+		CGI::Carp
 		LWP::Simple
 		LWP::UserAgent
 		HTTP::Request
@@ -16,8 +20,5 @@ Requirements
 		MIME::Base64
 		Crypt::Rijndael
 		File::Basename
-
-Description
-	Decrypt .dlc files.
 
 # EOF
