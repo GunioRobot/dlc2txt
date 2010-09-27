@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 # Created @ 01.04.2009 by TheFox@fox21.at
-# Version: 1.1.0b2
+# Version: 1.1.0
 # Copyright (c) 2009, 2010 TheFox
 
 # This program is free software: you can redistribute it and/or modify
@@ -41,7 +41,7 @@ $| = 1;
 
 
 my $DEBUG = 0; # TODO
-my $VERSION = '1.1.0b2';
+my $VERSION = '1.1.0';
 
 my $KEYFILE = ''; # TODO
 #my $KEYFILE = './dlc2txt.keys'; # Optional.
