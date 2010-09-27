@@ -2,6 +2,7 @@
 
 Description
 	Decrypt .dlc files.
+	NOTE: There are no Keys in die source code.
 
 Installation
 	You need to set up $KEYA, $KEYB and $PROGNAME.
@@ -20,5 +21,8 @@ Requirements
 		MIME::Base64
 		Crypt::Rijndael
 		File::Basename
+
+THX to
+	eddy14 (http://41yd.de/blog/2008/11/15/dlc-geknackt/)
 
 # EOF
