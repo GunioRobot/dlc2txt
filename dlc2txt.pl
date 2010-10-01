@@ -25,7 +25,6 @@
 
 use strict;
 use FindBin;
-use Cwd;
 use CGI;
 use CGI::Carp qw(fatalsToBrowser);
 use LWP::Simple;
