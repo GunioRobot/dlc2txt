@@ -54,7 +54,6 @@ my $USERAGENT = 'User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.10
 my $JLINK = 'http://service.jdownloader.org/dlcrypt/service.php';
 my $TAILLEN = 88;
 my $IV = pack 'H*', '00000000000000000000000000000000';
-my $RESPONSELEN = 50;
 
 sub main{
 	
