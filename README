@@ -10,7 +10,7 @@ Installation
 Requirements
 	- Webserver
 	- Perlmodule:
-		Cwd
+		FindBin
 		CGI
 		CGI::Carp
 		LWP::Simple
