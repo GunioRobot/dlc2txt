@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 # Created @ 01.04.2009 by TheFox@fox21.at
-# Version: 1.1.0
+# Version: 1.1.1
 # Copyright (c) 2009, 2010 TheFox
 
 # This program is free software: you can redistribute it and/or modify
@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # Description:
-# Decrypt .dlc files.
+# Decrypt .dlc files. Containers sucks. Really!
 
 # THX to
 # eddy14 (http://41yd.de/blog/2008/11/15/dlc-geknackt/)
@@ -40,7 +40,7 @@ $| = 1;
 
 
 my $DEBUG = 0; # TODO
-my $VERSION = '1.1.0';
+my $VERSION = '1.1.1';
 
 my $KEYFILE = ''; # TODO
 #my $KEYFILE = './dlc2txt.keys'; # Optional.
@@ -176,9 +176,7 @@ sub main{
 		}
 		setLocalAddr($BINDIP);
 		$retval = $ua->request($req);
-		if($DEBUG){
-			print "DEBUG: response: <pre>".$retval->as_string()."</pre><br />";
-		}
+		if($DEBUG){ print "DEBUG: response: <pre>".$retval->as_string()."</pre><br />"; }
 		$response = $retval->content();
 		
 		my $responseKey = '';
@@ -188,7 +186,8 @@ sub main{
 		if($response =~ /<rc>(.*)<.rc>/si){
 			$responseKey = $1;
 			if($DEBUG){
-				print "DEBUG: response key: $responseKey<br />";
+				print "DEBUG: responseKey: $responseKey<br />";
+				print "DEBUG: responseKey hex: ".(unpack 'H*', $responseKey)."<br />";
 			}
 		}
 		else{
@@ -205,21 +204,28 @@ sub main{
 		
 		$responseKeyDeb64 = decode_base64($responseKey);
 		if($DEBUG){
-			print "DEBUG: response len: ".length($responseKeyDeb64)."<br />";
+			print "DEBUG: responseKeyDeb64: ".(unpack 'H*', $responseKeyDeb64)."<br />";
 		}
 		
 		
 		my $cipher = Crypt::Rijndael->new($KEYA, Crypt::Rijndael::MODE_ECB());
 		$cipher->set_iv($IV);
-		my $newkey = xorcrypt($cipher->decrypt($responseKeyDeb64), $KEYB);
+		my $responseKeyDeb64Decr = $cipher->decrypt($responseKeyDeb64);
+		my $newkey = xorcrypt($responseKeyDeb64Decr, $KEYB);
 		my $newdlc = $newkey.$dlc;
+		
+		if($DEBUG){
+			print "DEBUG: responseKeyDeb64Decr: ".(unpack 'H*', $responseKeyDeb64Decr)."<br />";
+			print "DEBUG: newkey: ".(unpack 'H*', $newkey)."<br />";
+		}
 		
 		$cipher = Crypt::Rijndael->new($newkey, Crypt::Rijndael::MODE_ECB());
 		$cipher->set_iv($IV);
 		
 		my $xml = '';
 		while(length $dlc > 0){
-			my $rest = length($dlc) >= 16 ? 16 : length $dlc;
+			my $dlclen = length $dlc;
+			my $rest = $dlclen >= 16 ? 16 : $dlclen;
 			my $cutold = substr $dlc, 0, $rest;
 			my $cutnew = substr $newdlc, 0, $rest;
 			$dlc = substr $dlc, $rest;
@@ -294,13 +300,14 @@ sub xorcrypt{
 	my $encrypt = '';
 	my $kc = 0;
 	my $kl = length $key;
-	for(my $i = 0; $i < length $data; $i++){
-			my $c = substr $data, $i, 1;
-			$kc = 0 if $kc > $kl - 1;
-			my $k = substr $key, $kc, 1;
-			$kc++;
-			$encrypt .= chr(ord($c) ^ ord($k));
-			#print "$i: >$c<\n"; sleep 1;
+	my $dl = length $data;
+	for(my $i = 0; $i < $dl; $i++){
+		my $c = substr $data, $i, 1;
+		$kc = 0 if $kc > $kl - 1;
+		my $k = substr $key, $kc, 1;
+		$kc++;
+		$encrypt .= chr(ord($c) ^ ord($k));
+		#print "$i: >$c<\n"; sleep 1;
 	}
 	$encrypt;
 }
