@@ -49,7 +49,7 @@ my $KEYB = '';
 my $PROGNAME = ''; # program identification like 'jdtc5', 'rsdc', 'load', ...
 
 my $BINDIP = '';
-my $USERAGENT = 'User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.10) Gecko/2009042523 Ubuntu/9.04 (jaunty) Firefox/3.0.10';
+my $USERAGENT = 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.10) Gecko/2009042523 Ubuntu/9.04 (jaunty) Firefox/3.0.10';
 #my $JLINK = 'http://service.jdownloader.org/dlcrypt/service.php?destType={$PROGNAME}&srcType=dlc&data=';
 my $JLINK = 'http://service.jdownloader.org/dlcrypt/service.php';
 my $TAILLEN = 88;
