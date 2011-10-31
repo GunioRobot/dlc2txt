@@ -56,20 +56,20 @@ my $TAILLEN = 88;
 my $IV = pack 'H*', '00000000000000000000000000000000';
 
 sub main{
-	
+
 	chdir $FindBin::Bin;
-	
+
 	my $self = basename $0;
-	
+
 	my $ua = LWP::UserAgent->new('max_redirect' => 5);
 	my $req;
 	my $retval;
 	my $content;
 	my $cgi = new CGI();
 	my %input = ();
-	
+
 	$ua->agent($USERAGENT);
-	
+
 	if(!defined @ARGV){
 		for my $key ($cgi->param()){
 			$input{$key} = $cgi->param($key);
@@ -83,7 +83,7 @@ sub main{
 			}
 		}
 	}
-	
+
 	# optional
 	if(-e $KEYFILE){
 		open KEYS, '<', $KEYFILE;
@@ -94,16 +94,16 @@ sub main{
 			($PROGNAME, $KEYA, $KEYB) = ($1, $2, $3);
 		}
 	}
-	
+
 	$JLINK =~ s/\{\$PROGNAME\}\E/$PROGNAME/sig;
-	
-	
+
+
 	$input{'a'} = 'default' unless defined $input{'a'};
 	$input{'sa'} = 'default' unless defined $input{'sa'};
-	
+
 	my $action = $input{'a'} ;
 	my $subaction = $input{'sa'};
-	
+
 	if($action eq 'default'){
 		print "Content-type: text/html\n\n";
 		my $error = '';
@@ -132,10 +132,10 @@ sub main{
 	}
 	elsif($action eq 'exec'){
 		print "Content-type: text/html\n\n";
-		
+
 		my $out = '';
 		my $dlc = $input{'content'};
-		
+
 		my $error = '';
 		if($KEYA eq '' || $KEYB eq '' || $PROGNAME eq ''){
 			$error = '<font color="#ff0000"><b>ERROR: You need to set $KEYA and $KEYB and $PROGNAME!!!</b></font><br />';
@@ -147,17 +147,17 @@ sub main{
 			print $error;
 			exit 0;
 		}
-		
-		
+
+
 		$dlc =~ s/[\r\n]+//s;
 		if($DEBUG){
 			print "DEBUG: dlc len: ".length($dlc)."<br />";
 		}
-		
+
 		my $tail = substr $dlc, length($dlc) - $TAILLEN;
 		$dlc = substr $dlc, 0, length($dlc) - length($tail);
 		$dlc = decode_base64($dlc);
-		
+
 		my $response = '';
 		#$req = GET($JLINK.$tail);
 		$req = POST(
@@ -178,11 +178,11 @@ sub main{
 		$retval = $ua->request($req);
 		if($DEBUG){ print "DEBUG: response: <pre>".$retval->as_string()."</pre><br />"; }
 		$response = $retval->content();
-		
+
 		my $responseKey = '';
 		my $responseKeyDeb64 = ''; # Response key base64 decrypted.
 		my $responseKeyError = 0;
-		
+
 		if($response =~ /<rc>(.*)<.rc>/si){
 			$responseKey = $1;
 			if($DEBUG){
@@ -193,7 +193,7 @@ sub main{
 		else{
 			$responseKeyError = 1;
 		}
-		
+
 		# According to jdownloader decompiled code. Haha MF!
 		if($responseKey eq '2YVhzRFdjR2dDQy9JL25aVXFjQ1RPZ'){
 			$responseKeyError = 1;
@@ -201,27 +201,27 @@ sub main{
 		if($responseKeyError == 1){
 			print '<font color="#ff0000"><b>ERROR: You recently opened to many DLCs. Please wait a few minutes.</b></font><br />';
 		}
-		
+
 		$responseKeyDeb64 = decode_base64($responseKey);
 		if($DEBUG){
 			print "DEBUG: responseKeyDeb64: ".(unpack 'H*', $responseKeyDeb64)."<br />";
 		}
-		
-		
+
+
 		my $cipher = Crypt::Rijndael->new($KEYA, Crypt::Rijndael::MODE_ECB());
 		$cipher->set_iv($IV);
 		my $responseKeyDeb64Decr = $cipher->decrypt($responseKeyDeb64);
 		my $newkey = xorcrypt($responseKeyDeb64Decr, $KEYB);
 		my $newdlc = $newkey.$dlc;
-		
+
 		if($DEBUG){
 			print "DEBUG: responseKeyDeb64Decr: ".(unpack 'H*', $responseKeyDeb64Decr)."<br />";
 			print "DEBUG: newkey: ".(unpack 'H*', $newkey)."<br />";
 		}
-		
+
 		$cipher = Crypt::Rijndael->new($newkey, Crypt::Rijndael::MODE_ECB());
 		$cipher->set_iv($IV);
-		
+
 		my $xml = '';
 		while(length $dlc > 0){
 			my $dlclen = length $dlc;
@@ -234,7 +234,7 @@ sub main{
 			$cutold = xorcrypt($cutold, $cutnew);
 			$xml .= $cutold;
 		}
-		
+
 		if($DEBUG){
 			print "DEBUG: xml: <pre>$xml</pre><br />";
 		}
@@ -242,7 +242,7 @@ sub main{
 		if($DEBUG){
 			print "DEBUG: xml decode_base64: <pre>$xml</pre><br />";
 		}
-		
+
 		my @strs = ();
 		while($xml =~ />([a-z0-9\+\/_=-]+)</sig){
 			push @strs, $1;
@@ -250,7 +250,7 @@ sub main{
 		while($xml =~ /"([a-z0-9\+\/_=-]+)"/sig){
 			push @strs, $1;
 		}
-		
+
 		for my $search (@strs){
 			while(length($search) % 4){
 				$search .= '=';
@@ -258,7 +258,7 @@ sub main{
 			my $db64 = decode_base64($search);
 			$xml =~ s/\Q$search\E/$db64/s;
 		}
-		
+
 		if($xml =~ /<content>(.*)<.content>/sig){
 			if($DEBUG){
 				print "DEBUG: xml ok<br />";
@@ -270,7 +270,7 @@ sub main{
 				}
 			}
 		}
-		
+
 		print qq(
 			<html>
 				<head>
@@ -283,7 +283,7 @@ sub main{
 			</html>
 		);
 	}
-	
+
 }
 
 sub setLocalAddr{
